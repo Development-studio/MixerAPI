@@ -1,10 +1,10 @@
 # MixerAPI
 Easy to use API based on LXL and CJS. Adds some methods to increase your LXL scripting experiece
 ## Installation
-You have to install [LiteXLoader](https://github.com/LiteLDev/LiteXLoader "LiteXLoader") and [cjs.js](https://github.com/callstackexceed/cjs.js "CJS") to use this API. 
-After everything is done, simply put the API script into `bds_folder/plugins/cjs`
+You have to install [LiteXLoader](https://github.com/LiteLDev/LiteXLoader "LiteXLoader") to use this API. 
+After everything is done, simply put the API script into `bds_folder/plugins/`
 ## Usage
-To use MixerAPI, you have to put your script in `bds_folder/plugins/cjs` and add a `require`
+To use MixerAPI, you have to put your script in `bds_folder/plugins/` and add a `require`
 ###### Example:
 ```JS
 //This is your script
