@@ -22,7 +22,7 @@ const path = './plugins/MixerAPI/banList.json';
 
 mc.listen('onServerStarted', function(){
 	if (!file.exists(path)) {
-	    file.writeTo(path, '[{"gametag":"bugfix","clientID":"bugfix","xuid":"bugfix","reason":"bugfix"}]');
+	    file.writeTo(path, '[]');
 	}
 })
 
@@ -44,15 +44,7 @@ module.exports.banPlayer = banPlayer
 
 function unbanPlayer(bplayer) {
 	let bplayername = bplayer.realName
-	let banList = JSON.parse(file.readFrom(path));
-    for (let i = 0; i < banList.length; i++) {
-        if (bplayername === banList[i]['gametag']) {
-            unbanObj = `,{"gametag":"${banList[i]['gametag']}","clientID":"${banList[i]['clientID']}","xuid":"${banList[i]['xuid']}","reason":"${banList[i]['reason']}"}`;
-            banList = String(JSON.stringify(banList));
-            rewrite = banList.replace(unbanObj, '');
-            file.writeTo(path, rewrite)
-        }
-    }
+	unbanByGametag(bplayername)
 }
 module.exports.unbanPlayer = unbanPlayer
 
@@ -60,9 +52,16 @@ function unbanByGametag(bplayername) {
 	let banList = JSON.parse(file.readFrom(path));
     for (let i = 0; i < banList.length; i++) {
         if (bplayername === banList[i]['gametag']) {
-            unbanObj = `,{"gametag":"${banList[i]['gametag']}","clientID":"${banList[i]['clientID']}","xuid":"${banList[i]['xuid']}","reason":"${banList[i]['reason']}"}`;
-            banList = String(JSON.stringify(banList));
-            rewrite = banList.replace(unbanObj, '');
+        	switch (i){
+        		case 0:
+        			unbanObj = `{"gametag":"${banList[i]['gametag']}","clientID":"${banList[i]['clientID']}","xuid":"${banList[i]['xuid']}","reason":"${banList[i]['reason']}"}`
+        			break
+        		default:
+        			unbanObj = `,{"gametag":"${banList[i]['gametag']}","clientID":"${banList[i]['clientID']}","xuid":"${banList[i]['xuid']}","reason":"${banList[i]['reason']}"}`
+        			break
+        	}
+            banList = String(JSON.stringify(banList))
+            rewrite = banList.replace(unbanObj, '')
             file.writeTo(path, rewrite)
         }
     }
@@ -79,30 +78,8 @@ mc.listen('onPreJoin', function (player) {
 })
 
 //SpeedAPI code
-/*
-async function getXZSpeed(player) {
-	let xOld = player.pos.x
-	let zOld = player.pos.z
-	let newPosObj = {
-		xNew: null,
-		zNew: null
-	}
-	let a = await setTimeout(function getNewPos() {
-		let newPlayer = mc.getPlayer(player.xuid)
-		newPosObj = {
-			xNew: newPlayer.pos.x,
-			zNew: newPlayer.pos.z
-		}
-	}, 1)
-	if(newPosObj.xNew != null && newPosObj.zNew != null){
-		let xMove = Math.abs(newPosObj.xNew - xOld)
-		let zMove = Math.abs(newPosObj.zNew - zOld)
-		let XZMove = Math.sqrt(Math.pow(xMove,2) + Math.pow(zMove,2))
-		let XZSpeed = XZMove/1000
-		return XZSpeed
-	}
-}
-*/
+
+//BROKEN!!
 async function getXZSpeed(player) {
 	let xOld = player.pos.x
 	let zOld = player.pos.z
