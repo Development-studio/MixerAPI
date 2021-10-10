@@ -1,14 +1,16 @@
 //Information code
 
-const apiVersion = 1
+const apiVersion = 2
 
 function targetApiVersion(av) {
-	if(av < apiVersion){
-		colorLog('yellow', 'Warn: Outdated script\'s target API!')
-	}
-	if(av > apiVersion){
-		colorLog('red', 'Outdated MixerAPI version or typo in one of script\'s target API!')
-	}
+	mc.listen('onServerStarted', function () {
+		if(av < apiVersion){
+			colorLog('yellow', 'Warn: Outdated script\'s target API!')
+		}
+		if(av > apiVersion){
+			colorLog('red', 'Outdated MixerAPI version or typo in one of script\'s target API!')
+		}
+	})	
 }
 module.exports.targetApiVersion = targetApiVersion
 
@@ -41,6 +43,12 @@ function banPlayer(bplayer, reason) {
 	bplayer.kick('You are banned on this server!' + '\n' + reason)
 }
 module.exports.banPlayer = banPlayer
+
+function banByGametag(bplayername, reason) {
+	let bplayer = mc.getPlayer(bplayername)
+	banPlayer(bplayer, reason)
+}
+module.exports.banByGametag = banByGametag
 
 function unbanPlayer(bplayer) {
 	let bplayername = bplayer.realName
