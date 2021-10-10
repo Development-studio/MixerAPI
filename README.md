@@ -11,7 +11,7 @@ To use MixerAPI, you have to put your script in `bds_folder/plugins/cjs` and add
 const api = require('./MixerAPI.js')
 ```
 ## Documentation
-Documentation for every API method can be found in repo's wiki. **Attention! API may be changed in future**
+Documentation for every API method can be found in repo's [wiki](https://github.com/Development-studio/MixerAPI/wiki). **Attention! API may be changed in future**
 ## API usage examples
 ###### Ban/Unban
 ```JS
