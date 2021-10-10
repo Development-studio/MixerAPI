@@ -22,12 +22,12 @@ const api = require('./MixerAPI.js')
 mc.regPlayerCmd('ban', 'Ban any player', function(player, args){
   let gameTag = args[0] //You can use XUID as well
   let reason = args[1] //Optional, if == null, won't display ban reason for banned player
-  api.banPlayer(gameTag, reason)
+  api.banByGametag(gameTag, reason)
 })
 
 mc.regPlayerCmd('unban', 'unban player', function(player, args){
   let gameTag = args[0] //You can use XUID as well
-  api.unbanPlayer(gameTag)
+  api.unbanByGametag(gameTag)
 })
 ```
 ###### Get player's speed only by X and Z
