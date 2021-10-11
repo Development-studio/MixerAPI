@@ -1,21 +1,28 @@
 //Information code
 
-const apiVersion = 3
+const apiVersionMajor = 1
+const apiVersionMinor = 0
+const apiVersionRevision = 0
 
-function targetApiVersion(av) {
-	mc.listen('onServerStarted', function () {
-		if(av < apiVersion){
-			colorLog('yellow', 'Warn: Outdated script\'s target API!')
-		}
-		if(av > apiVersion){
-			colorLog('red', 'Outdated MixerAPI version or typo in one of script\'s target API!')
-		}
-	})	
+const isBeta = true
+
+class TargetVersion{
+	static set(apiVerMaj, apiVerMin, apiVerRev) {
+		mc.listen('onServerStarted', function () {
+			if (apiVersionMajor != apiVerMaj || apiVersionMinor < apiVerMin || apiVersionRevision < apiVerRev) {
+				logger.log('red', 'Incompatible API version in one of the scripts')
+				mc.runCmd('stop')
+			}
+		})
+	}
 }
-module.exports.targetApiVersion = targetApiVersion
+module.exports.TargetVersion = TargetVersion
 
 mc.listen('onServerStarted', function(){
-	colorLog('green', 'This server is using MixerAPI v' + apiVersion)
+	colorLog('green', 'This server is using MixerAPI v' + apiVersionMajor + '.' + apiVersionMinor + '.' + apiVersionRevision)
+	if (isBeta){
+		colorLog('yellow', 'Warn: This API version is currently in Beta')
+	}
 })
 
 //BanAPI code
@@ -28,53 +35,49 @@ mc.listen('onServerStarted', function(){
 	}
 })
 
-function banPlayer(bplayer, reason) {
-	let cid = bplayer.getDevice().clientId
-	let bname = bplayer.realName
-	let bxuid = bplayer.xuid
-	let banList = JSON.parse(file.readFrom(path))
-        banList.push({
-            "gametag": bname,
-            "clientID": cid,
-            "xuid": bxuid,
-            "reason": reason
-        })
-        file.writeTo(path, JSON.stringify(banList))
-	bplayer.kick('You are banned on this server!' + '\n' + reason)
+class BanAPI{
+	static banByObject(bplayer, reason){
+		let cid = bplayer.getDevice().clientId
+		let bname = bplayer.realName
+		let bxuid = bplayer.xuid
+		let banList = JSON.parse(file.readFrom(path))
+    	    banList.push({
+    	        "gametag": bname,
+    	        "clientID": cid,
+    	        "xuid": bxuid,
+    	        "reason": reason
+    	    })
+    	    file.writeTo(path, JSON.stringify(banList))
+		bplayer.kick('You are banned on this server!' + '\n' + reason)
+	}
+	static banByGametag(bplayername, reason){
+		let bplayer = mc.getPlayer(bplayername)
+		banByObject(bplayer, reason)
+	}
+	static unbanByGametag(bplayername){
+		let banList = JSON.parse(file.readFrom(path));
+    	for (let i = 0; i < banList.length; i++) {
+    	    if (bplayername === banList[i]['gametag']) {
+    	    	switch (i){
+    	    		case 0:
+    	    			unbanObj = `{"gametag":"${banList[i]['gametag']}","clientID":"${banList[i]['clientID']}","xuid":"${banList[i]['xuid']}","reason":"${banList[i]['reason']}"}`
+    	    			break
+    	    		default:
+    	    			unbanObj = `,{"gametag":"${banList[i]['gametag']}","clientID":"${banList[i]['clientID']}","xuid":"${banList[i]['xuid']}","reason":"${banList[i]['reason']}"}`
+    	    			break
+    	   		}
+    	    banList = String(JSON.stringify(banList))
+    	    rewrite = banList.replace(unbanObj, '')
+    	    file.writeTo(path, rewrite)
+    		}
+    	}
+	}
+	static unbanByObject(bplayer){
+		let bplayername = bplayer.realName
+		unbanByGametag(bplayername)
+	}
 }
-module.exports.banPlayer = banPlayer
-
-function banByGametag(bplayername, reason) {
-	let bplayer = mc.getPlayer(bplayername)
-	banPlayer(bplayer, reason)
-}
-module.exports.banByGametag = banByGametag
-
-function unbanPlayer(bplayer) {
-	let bplayername = bplayer.realName
-	unbanByGametag(bplayername)
-}
-module.exports.unbanPlayer = unbanPlayer
-
-function unbanByGametag(bplayername) {
-	let banList = JSON.parse(file.readFrom(path));
-    for (let i = 0; i < banList.length; i++) {
-        if (bplayername === banList[i]['gametag']) {
-        	switch (i){
-        		case 0:
-        			unbanObj = `{"gametag":"${banList[i]['gametag']}","clientID":"${banList[i]['clientID']}","xuid":"${banList[i]['xuid']}","reason":"${banList[i]['reason']}"}`
-        			break
-        		default:
-        			unbanObj = `,{"gametag":"${banList[i]['gametag']}","clientID":"${banList[i]['clientID']}","xuid":"${banList[i]['xuid']}","reason":"${banList[i]['reason']}"}`
-        			break
-        	}
-            banList = String(JSON.stringify(banList))
-            rewrite = banList.replace(unbanObj, '')
-            file.writeTo(path, rewrite)
-        }
-    }
-}
-module.exports.unbanByGametag = unbanByGametag
+module.exports.BanAPI = BanAPI
 
 mc.listen('onPreJoin', function (player) {
 	let banList = JSON.parse(file.readFrom(path))
@@ -87,56 +90,37 @@ mc.listen('onPreJoin', function (player) {
 
 //ExperienceAPI code
 
-// I propose to group all the API's into separate classes
-// class ExperienceAPI {
-// 	static get(player) {
-// 		...
-// 	}
-// 	static set(player,xp) {
-// 		...
-// 	}
-// 	static add(player,xp) {
-// 		...
-// 	}
-// 	static reduce(player,xp) {
-// 		...
-// 	}
-// }
-
-function experienceGet(player) {
-	let currentXp = player.getNbt().getTag('PlayerLevel').toString()
-	return currentXp
-}
-module.exports.experienceGet = experienceGet
-
-function experienceSet(player, xp) {
-	let xpToChange = player.getNbt().setInt('PlayerLevel', Number(xp))
-	player.setNbt(xpToChange)
-}
-module.exports.experienceSet = experienceSet
-
-function experienceAdd(player, xp) {
-	let xpToChange = player.getNbt().setInt('PlayerLevel', Number(experienceGet(player)) + Number(xp))
-	player.setNbt(xpToChange)
-}
-module.exports.experienceAdd = experienceAdd
-
-function experienceReduce(player, xp) {
-	let xpToChange = player.getNbt().setInt('PlayerLevel', Number(experienceGet(player)) - Number(xp)) 
-	let currentXp = experienceGet(player)
-	let xpToReduce = xp
-	if (currentXp < xpToReduce) {
-		return false
-	} else {
+class ExperienceAPI {
+	static get(player) {
+		let currentXp = player.getNbt().getTag('PlayerLevel').toString()
+		return currentXp
+	}
+	static set(player,xp) {
+		let xpToChange = player.getNbt().setInt('PlayerLevel', Number(xp))
 		player.setNbt(xpToChange)
-		return true
+	}
+	static add(player,xp) {
+		let xpToChange = player.getNbt().setInt('PlayerLevel', Number(get(player)) + Number(xp))
+		player.setNbt(xpToChange)
+	}
+	static reduce(player,xp) {
+		let xpToChange = player.getNbt().setInt('PlayerLevel', Number(get(player)) - Number(xp)) 
+		let currentXp = get(player)
+		let xpToReduce = xp
+		if (currentXp < xpToReduce) {
+			return false
+		} else {
+			player.setNbt(xpToChange)
+			return true
+		}
 	}
 }
-module.exports.experienceReduce = experienceReduce
+module.exports.ExperienceAPI = ExperienceAPI
 
 //SpeedAPI code
 
 //BROKEN!!
+/*
 async function getXZSpeed(player) {
 	let xOld = player.pos.x
 	let zOld = player.pos.z
@@ -180,3 +164,4 @@ async function getXZSpeed(player) {
 	return result
 }
 module.exports.getXZSpeed = getXZSpeed
+*/
