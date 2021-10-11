@@ -41,3 +41,13 @@ mc.listen('onMove', function (player, pos){
   logger.log('XZSpeed')
 })
 ```
+###### Get player's experience
+```JS
+//This is your script
+const api = require('./MixerAPI.js')
+
+//MixerAPI is 100% compatible with LXL's JS API
+mc.regPlayerCmd("get","Get XP",function(pl,args){
+    pl.tell(`You have: ${api.experienceGet(pl)}XP`);
+});
+```
