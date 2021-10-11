@@ -85,6 +85,55 @@ mc.listen('onPreJoin', function (player) {
     }
 })
 
+//ExperienceAPI code
+
+// I propose to group all the API's into separate classes
+// class ExperienceAPI {
+// 	static get(player) {
+// 		...
+// 	}
+// 	static set(player,xp) {
+// 		...
+// 	}
+// 	static add(player,xp) {
+// 		...
+// 	}
+// 	static reduce(player,xp) {
+// 		...
+// 	}
+// }
+
+function experienceGet(player) {
+	let currentXp = player.getNbt().getTag('PlayerLevel').toString()
+	return currentXp
+}
+module.exports.experienceGet = experienceGet
+
+function experienceSet(player, xp) {
+	let xpToChange = player.getNbt().setInt('PlayerLevel', Number(xp))
+	player.setNbt(xpToChange)
+}
+module.exports.experienceSet = experienceSet
+
+function experienceAdd(player, xp) {
+	let xpToChange = player.getNbt().setInt('PlayerLevel', Number(experienceGet(player)) + Number(xp))
+	player.setNbt(xpToChange)
+}
+module.exports.experienceAdd = experienceAdd
+
+function experienceReduce(player, xp) {
+	let xpToChange = player.getNbt().setInt('PlayerLevel', Number(experienceGet(player)) - Number(xp)) 
+	let currentXp = experienceGet(player)
+	let xpToReduce = xp
+	if (currentXp < xpToReduce) {
+		return false
+	} else {
+		player.setNbt(xpToChange)
+		return true
+	}
+}
+module.exports.experienceReduce = experienceReduce
+
 //SpeedAPI code
 
 //BROKEN!!
