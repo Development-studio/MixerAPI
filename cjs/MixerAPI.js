@@ -10,8 +10,9 @@ class TargetVersion{
 	static set(apiVerMaj, apiVerMin, apiVerRev) {
 		mc.listen('onServerStarted', function () {
 			if (apiVersionMajor != apiVerMaj || apiVersionMinor < apiVerMin || apiVersionRevision < apiVerRev) {
-				logger.log('red', 'Incompatible API version in one of the scripts')
-				mc.runCmd('stop')
+				colorLog('red', 'Incompatible API version in one of the scripts')
+				logger.log('Server will be stopped')
+				setTimeout(mc.runcmd('stop'), 5000)
 			}
 		})
 	}
@@ -55,6 +56,7 @@ class BanAPI{
 		banByObject(bplayer, reason)
 	}
 	static unbanByGametag(bplayername){
+		let unbanObj = null
 		let banList = JSON.parse(file.readFrom(path));
     	for (let i = 0; i < banList.length; i++) {
     	    if (bplayername === banList[i]['gametag']) {
@@ -66,9 +68,9 @@ class BanAPI{
     	    			unbanObj = `,{"gametag":"${banList[i]['gametag']}","clientID":"${banList[i]['clientID']}","xuid":"${banList[i]['xuid']}","reason":"${banList[i]['reason']}"}`
     	    			break
     	   		}
-    	    banList = String(JSON.stringify(banList))
-    	    rewrite = banList.replace(unbanObj, '')
-    	    file.writeTo(path, rewrite)
+    	    	banList = String(JSON.stringify(banList))
+    	    	let rewrite = banList.replace(unbanObj, '')
+    	    	file.writeTo(path, rewrite)
     		}
     	}
 	}
@@ -156,10 +158,7 @@ async function getXZSpeed(player) {
 			XZSpeed_(XZMove * 1000)
 		}
 	)
-
-
 	let result = await XZSpeed
-
 	logger.log(result)
 	return result
 }
