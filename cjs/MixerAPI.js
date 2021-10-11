@@ -119,6 +119,16 @@ class ExperienceAPI {
 }
 module.exports.ExperienceAPI = ExperienceAPI
 
+class ItemAPI {
+	static enchant(player, enchantName, lvl) {
+		mc.runcmdEx(`enchant ${player.realName} ${enchantName} ${lvl}`)
+	}
+	static repair(player, item=player.getHand()) {
+		// under construction
+	}
+}
+module.exports.ItemAPI = ItemAPI
+
 //SpeedAPI code
 
 //BROKEN!!
