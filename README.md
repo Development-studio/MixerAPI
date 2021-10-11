@@ -30,17 +30,6 @@ mc.regPlayerCmd('unban', 'unban player', function(player, args){
   api.BanAPI.unbanByGametag(gameTag)
 })
 ```
-###### Get player's speed only by X and Z
-```JS
-//This is your script
-const api = require('./MixerAPI.js')
-
-//MixerAPI is 100% compatible with LXL's JS API
-mc.listen('onMove', function (player, pos){
-  let XZSpeed = api.getXZSpeed(player)
-  logger.log('XZSpeed')
-})
-```
 ###### Get player's experience
 ```JS
 //This is your script
