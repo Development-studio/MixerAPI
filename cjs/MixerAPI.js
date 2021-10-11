@@ -1,15 +1,13 @@
 //Information code
 
-const apiVersionMajor = 1
-const apiVersionMinor = 0
-const apiVersionRevision = 0
+const apiVersion= [1, 0, 0]
 
 const isBeta = true
 
 class TargetVersion{
 	static set(apiVerMaj, apiVerMin, apiVerRev) {
 		mc.listen('onServerStarted', function () {
-			if (apiVersionMajor != apiVerMaj || apiVersionMinor < apiVerMin || apiVersionRevision < apiVerRev) {
+			if (apiVersion[0] != apiVerMaj || apiVersion[1] < apiVerMin || apiVersion[2] < apiVerRev) {
 				colorLog('red', 'Incompatible API version in one of the scripts')
 				logger.log('Server will be stopped')
 				setTimeout(mc.runcmd('stop'), 5000)
@@ -20,7 +18,7 @@ class TargetVersion{
 module.exports.TargetVersion = TargetVersion
 
 mc.listen('onServerStarted', function(){
-	colorLog('green', 'This server is using MixerAPI v' + apiVersionMajor + '.' + apiVersionMinor + '.' + apiVersionRevision)
+	colorLog('green', 'This server is using MixerAPI v' + apiVersion[0] + '.' + apiVersion[1] + '.' + apiVersion[2])
 	if (isBeta){
 		colorLog('yellow', 'Warn: This API version is currently in Beta')
 	}
@@ -119,15 +117,37 @@ class ExperienceAPI {
 }
 module.exports.ExperienceAPI = ExperienceAPI
 
-class ItemAPI {
-	static enchant(player, enchantName, lvl) {
-		mc.runcmdEx(`enchant ${player.realName} ${enchantName} ${lvl}`)
+//ChatAPI code
+
+class ChatAPI {
+	static mute(player) {
+		if (player.hasTag('is_muted:false')) {
+			player.removeTag('is_muted:false')
+		}
+		player.addTag('is_muted:true')
 	}
-	static repair(player, item=player.getHand()) {
-		// under construction
+	static muteByGametag(playername) {
+		let player = mc.getPlayer(playername)
+		mute(player)
+	}
+	static unmute(player) {
+		if (player.hasTag('is_muted:true')) {
+			player.removeTag('is_muted:true')
+		}
+		player.addTag('is_muted:false')
+	}
+	static unmuteByGametag(playername) {
+		let player = mc.getPlayer(playername)
+		mute(player)
 	}
 }
-module.exports.ItemAPI = ItemAPI
+
+mc.listen('onChat', function (player, msg) {
+	if (player.hasTag('is_muted:true')) {
+		player.tell(Format.Gray + 'You are muted!', 0)
+		return false
+	}
+})
 
 //SpeedAPI code
 
