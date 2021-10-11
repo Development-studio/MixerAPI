@@ -22,12 +22,12 @@ const api = require('./MixerAPI.js')
 mc.regPlayerCmd('ban', 'Ban any player', function(player, args){
   let gameTag = args[0] //You can use XUID as well
   let reason = args[1] //Optional, if == null, won't display ban reason for banned player
-  api.banByGametag(gameTag, reason)
+  api.BanAPI.banByGametag(gameTag, reason)
 })
 
 mc.regPlayerCmd('unban', 'unban player', function(player, args){
   let gameTag = args[0] //You can use XUID as well
-  api.unbanByGametag(gameTag)
+  api.BanAPI.unbanByGametag(gameTag)
 })
 ```
 ###### Get player's speed only by X and Z
@@ -48,6 +48,6 @@ const api = require('./MixerAPI.js')
 
 //MixerAPI is 100% compatible with LXL's JS API
 mc.regPlayerCmd("get","Get XP",function(pl,args){
-    pl.tell(`You have: ${api.experienceGet(pl)}XP`);
+    pl.tell(`You have: ${api.ExperienceAPI.get(pl)}XP`);
 });
 ```
