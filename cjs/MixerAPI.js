@@ -30,60 +30,53 @@ const path = './plugins/MixerAPI/banList.json';
 
 mc.listen('onServerStarted', function(){
 	if (!file.exists(path)) {
-	    file.writeTo(path, '[]');
+	    file.writeTo(path, '{"bans": []}');
 	}
 })
 
-class BanAPI{
-	static banByObject(bplayer, reason){
-		let cid = bplayer.getDevice().clientId
-		let bname = bplayer.realName
-		let bxuid = bplayer.xuid
-		let banList = JSON.parse(file.readFrom(path))
-    	    banList.push({
-    	        "gametag": bname,
-    	        "clientID": cid,
-    	        "xuid": bxuid,
-    	        "reason": reason
-    	    })
-    	    file.writeTo(path, JSON.stringify(banList))
-		bplayer.kick('You are banned on this server!' + '\n' + reason)
-	}
-	static banByGametag(bplayername, reason){
+class BanAPI {
+    static banByObject(bplayer, reason){
+        let banList = JSON.parse(file.readFrom(path))
+        banList.bans.push({
+			"gametag": bplayer.realName,
+			"clientID": bplayer.getDevice().clientId,
+			"xuid": bplayer.xuid,
+			"reason": reason,
+		})
+        file.writeTo(path, JSON.stringify(banList))
+        bplayer.kick(reason)
+    }
+    static banByGametag(bplayername, reason){
 		let bplayer = mc.getPlayer(bplayername)
-		banByObject(bplayer, reason)
+		this.banByObject(bplayer,reason)
 	}
-	static unbanByGametag(bplayername){
-		let unbanObj = null
-		let banList = JSON.parse(file.readFrom(path));
-    	for (let i = 0; i < banList.length; i++) {
-    	    if (bplayername === banList[i]['gametag']) {
-    	    	switch (i){
-    	    		case 0:
-    	    			unbanObj = `{"gametag":"${banList[i]['gametag']}","clientID":"${banList[i]['clientID']}","xuid":"${banList[i]['xuid']}","reason":"${banList[i]['reason']}"}`
-    	    			break
-    	    		default:
-    	    			unbanObj = `,{"gametag":"${banList[i]['gametag']}","clientID":"${banList[i]['clientID']}","xuid":"${banList[i]['xuid']}","reason":"${banList[i]['reason']}"}`
-    	    			break
-    	   		}
-    	    	banList = String(JSON.stringify(banList))
-    	    	let rewrite = banList.replace(unbanObj, '')
-    	    	file.writeTo(path, rewrite)
-    		}
-    	}
-	}
-	static unbanByObject(bplayer){
+    static unbanByGametag(bplayername){
+        let banList = JSON.parse(file.readFrom(path))
+		let selectedBan = banList.bans.find(({ gametag }) => gametag === bplayername)
+        let banSelect = []
+        banSelect.push(selectedBan)
+        let filteredBan = banList.bans.filter(
+            (item) => !banSelect.includes(item)
+        )
+        let readyBansJson = { bans: filteredBan };
+        File.writeTo(
+            path,
+            JSON.stringify(readyBansJson)
+        );
+    }
+    static unbanByObject(bplayer){
 		let bplayername = bplayer.realName
-		unbanByGametag(bplayername)
+		this.unbanByGametag(bplayername)
 	}
 }
+
 module.exports.BanAPI = BanAPI
 
 mc.listen('onPreJoin', function (player) {
 	let banList = JSON.parse(file.readFrom(path))
-    for (let i = 0; i < banList.length; i++) {
-        if (player.getDevice().clientId === banList[i]['clientID'] || player.realName === banList[i]['gametag'] || player.xuid === banList[i]['xuid']) {
-            player.kick(`You are banned on this server!\n${banList[i]['reason']}`);
+    for (let i = 0; i < banList.bans.length; i++) {
+        if (player.getDevice().clientId === banList.bans[i].clientID || player.realName === banList.bans[i].gametag || player.xuid === banList.bans[i].xuid) {
+            player.kick(banList.bans[i].reason);
         }
     }
 })
