@@ -1,6 +1,6 @@
 //Information code
 
-const apiVersion = 2
+const apiVersion = 3
 
 function targetApiVersion(av) {
 	mc.listen('onServerStarted', function () {
