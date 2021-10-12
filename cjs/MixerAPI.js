@@ -2,7 +2,7 @@
 
 const apiVersion= [1, 0, 0]
 
-const isBeta = true
+const isBeta = false
 
 class TargetVersion{
 	static set(apiVerMaj, apiVerMin, apiVerRev) {
