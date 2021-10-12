@@ -100,7 +100,7 @@ mc.listen('onPreJoin', function (player) {
 
 class ExperienceAPI {
 	static get(player) {
-		let currentXp = player.getNbt().getTag('PlayerLevel').toString()
+		let currentXp = player.getNbt().getTag('PlayerLevel').get()
 		return currentXp
 	}
 	static set(player,xp) {
@@ -108,12 +108,12 @@ class ExperienceAPI {
 		player.setNbt(xpToChange)
 	}
 	static add(player,xp) {
-		let xpToChange = player.getNbt().setInt('PlayerLevel', Number(get(player)) + Number(xp))
+		let xpToChange = player.getNbt().setInt('PlayerLevel', Number(this.get(player)) + Number(xp))
 		player.setNbt(xpToChange)
 	}
 	static reduce(player,xp) {
-		let xpToChange = player.getNbt().setInt('PlayerLevel', Number(get(player)) - Number(xp)) 
-		let currentXp = get(player)
+		let xpToChange = player.getNbt().setInt('PlayerLevel', Number(this.get(player)) - Number(xp)) 
+		let currentXp = this.get(player)
 		let xpToReduce = xp
 		if (currentXp < xpToReduce) {
 			return false
@@ -149,6 +149,7 @@ class ChatAPI {
 		mute(player)
 	}
 }
+module.exports.ChatAPI = ChatAPI
 
 mc.listen('onChat', function (player, msg) {
 	if (player.hasTag('is_muted:true')) {
