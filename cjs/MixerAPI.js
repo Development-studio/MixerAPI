@@ -1,9 +1,22 @@
 //Information code
 
-const apiVersion= [1, 0, 0]
+const apiVersion= [1, 1, 0]
 
 const isBeta = true
+//API version will be now contained in plugin-ish Script information object
+class ScriptInfo{ 
+	static set(infoObject) {
+		mc.listen('onServerStarted', function () {
+			if (apiVersion[0] != infoObject.apiVersion[0] || apiVersion[1] < infoObject.apiVersion[1] || apiVersion[2] < infoObject.apiVersion[2]) {
+				colorLog('red', 'Incompatible API version in one of the scripts')
+				logger.log('Server will be stopped')
+				setTimeout(mc.runcmd('stop'), 5000)
+			}
+		})
+	}
+}
 
+/*
 class TargetVersion{
 	static set(apiVerMaj, apiVerMin, apiVerRev) {
 		mc.listen('onServerStarted', function () {
@@ -14,7 +27,7 @@ class TargetVersion{
 			}
 		})
 	}
-}
+}*/
 module.exports.TargetVersion = TargetVersion
 
 mc.listen('onServerStarted', function(){
