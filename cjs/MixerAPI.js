@@ -95,11 +95,11 @@ class ExperienceAPI {
 		player.setNbt(xpToChange)
 	}
 	static add(player,xp) {
-		let xpToChange = player.getNbt().setInt('PlayerLevel', this.get(player) + Number(xp))
+		let xpToChange = player.getNbt().setInt('PlayerLevel', Number(this.get(player)) + Number(xp))
 		player.setNbt(xpToChange)
 	}
 	static reduce(player,xp) {
-		let xpToChange = player.getNbt().setInt('PlayerLevel', this.get(player) - Number(xp)) 
+		let xpToChange = player.getNbt().setInt('PlayerLevel', Number(this.get(player)) - Number(xp)) 
 		let currentXp = this.get(player)
 		let xpToReduce = xp
 		if (currentXp < xpToReduce) {
