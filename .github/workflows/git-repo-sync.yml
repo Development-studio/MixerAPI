@@ -1,0 +1,19 @@
+name: build
+
+on: 
+  - push
+  - delete
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    name: Git Repo Sync
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - uses: Development-studio/MixerAPI@master
+      with:
+        target-url: 'https://gitee.com/development-studio/MixerAPI.git'
+        target-username: 'shizotoaster'
+        target-token: ${{ secrets.GITEE_ACCESS_TOKEN }}
