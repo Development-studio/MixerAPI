@@ -4,8 +4,12 @@ const apiVersion= [1, 1, 0]
 
 const isBeta = true
 //API version will be now contained in plugin-ish Script information object
+
+let scriptList = []
+
 class ScriptInfo{ 
-	static set(infoObject) {
+	static load(infoObject) {
+		scriptList.push(infoObject)
 		mc.listen('onServerStarted', function () {
 			if (apiVersion[0] != infoObject.apiVersion[0] || apiVersion[1] < infoObject.apiVersion[1] || apiVersion[2] < infoObject.apiVersion[2]) {
 				colorLog('red', 'Incompatible API version in one of the scripts')
@@ -13,21 +17,27 @@ class ScriptInfo{
 				setTimeout(mc.runcmd('stop'), 5000)
 			}
 		})
+		let _scriptList = ('MixerAPI v1.1.0 by Development-studio')
+		for (let i = 0; i <= scriptList.length; i++) {
+			_scriptList = _scriptList + ', ' + scriptList[i].name + ' by ' + scriptList[i].authors
+		}
+		mc.regPlayerCmd('plugins', 'Display list of installed scripts', function (player, args) {
+			player.tell(_scriptList, 0)
+		})
 	}
 }
 
 /*
-class TargetVersion{
-	static set(apiVerMaj, apiVerMin, apiVerRev) {
-		mc.listen('onServerStarted', function () {
-			if (apiVersion[0] != apiVerMaj || apiVersion[1] < apiVerMin || apiVersion[2] < apiVerRev) {
-				colorLog('red', 'Incompatible API version in one of the scripts')
-				logger.log('Server will be stopped')
-				setTimeout(mc.runcmd('stop'), 5000)
-			}
-		})
-	}
-}*/
+Info object example:
+
+ScriptInfo.load( {
+	name: 'Sample script',
+	authors: ['Me!!'],
+	apiVersion: [1, 1, 0]
+} )
+
+*/
+
 module.exports.TargetVersion = TargetVersion
 
 mc.listen('onServerStarted', function(){
