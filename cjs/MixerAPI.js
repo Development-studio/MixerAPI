@@ -38,7 +38,7 @@ ScriptInfo.load( {
 
 */
 
-module.exports.TargetVersion = TargetVersion
+module.exports.ScriptInfo = ScriptInfo
 
 mc.listen('onServerStarted', function(){
 	colorLog('green', 'This server is using MixerAPI v' + apiVersion[0] + '.' + apiVersion[1] + '.' + apiVersion[2])
