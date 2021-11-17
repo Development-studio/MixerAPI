@@ -12,30 +12,31 @@ class ScriptInfo{
 		scriptList.push(infoObject)
 		mc.listen('onServerStarted', function () {
 			if (apiVersion[0] != infoObject.apiVersion[0] || apiVersion[1] < infoObject.apiVersion[1] || apiVersion[2] < infoObject.apiVersion[2]) {
-				colorLog('red', 'Incompatible API version in one of the scripts')
+				colorLog('red', 'Incompatible API version in ' + infoObject.name)
 				logger.log('Server will be stopped')
 				setTimeout(mc.runcmd('stop'), 5000)
 			}
 		})
-		let _scriptList = ('MixerAPI v1.1.0 by Development-studio')
+		let _scriptList = ('MixerAPI v' + apiVersion[0] + '.' + apiVersion[1] + '.' + apiVersion[2] + ' by Development-studio')
 		for (let i = 0; i <= scriptList.length; i++) {
 			_scriptList = _scriptList + ', ' + scriptList[i].name + ' by ' + scriptList[i].authors
 		}
 		mc.regPlayerCmd('plugins', 'Display list of installed scripts', function (player, args) {
 			player.tell(_scriptList, 0)
 		})
+		mc.regConsoleCmd('plugins', function (args) {
+			logger.log(_scriptList)
+		})
 	}
 }
 
 /*
 Info object example:
-
 ScriptInfo.load( {
 	name: 'Sample script',
 	authors: ['Me!!'],
 	apiVersion: [1, 1, 0]
 } )
-
 */
 
 module.exports.ScriptInfo = ScriptInfo
@@ -138,21 +139,30 @@ module.exports.ExperienceAPI = ExperienceAPI
 //ChatAPI code
 
 class ChatAPI {
-	static mute(player) {
-		if (player.hasTag('is_muted:false')) {
-			player.removeTag('is_muted:false')
+	static tellFrom(player, message) {
+		let name = player.realName
+		if(!isMuted){
+			mc.runcmd('tellraw @a {"rawtext":[{"text":"<' + name + '> ' + message + '"}]}')
 		}
-		player.addTag('is_muted:true')
+	}
+	static isMuted(player){
+		if(player.hasTag('is_muted')){
+			return true
+		}else{
+			return false
+		}
+	}
+	static mute(player) {
+		player.addTag('is_muted')
 	}
 	static muteByGametag(playername) {
 		let player = mc.getPlayer(playername)
 		mute(player)
 	}
 	static unmute(player) {
-		if (player.hasTag('is_muted:true')) {
-			player.removeTag('is_muted:true')
+		if (isMuted) {
+			player.removeTag('is_muted')
 		}
-		player.addTag('is_muted:false')
 	}
 	static unmuteByGametag(playername) {
 		let player = mc.getPlayer(playername)
@@ -162,7 +172,7 @@ class ChatAPI {
 module.exports.ChatAPI = ChatAPI
 
 mc.listen('onChat', function (player, msg) {
-	if (player.hasTag('is_muted:true')) {
+	if (isMuted) {
 		player.tell(Format.Gray + 'You are muted!', 0)
 		return false
 	}
@@ -212,4 +222,4 @@ async function getXZSpeed(player) {
 	return result
 }
 module.exports.getXZSpeed = getXZSpeed
-*/
+*/ 
